@@ -1,79 +1,29 @@
-# rn-ios-xcode-env-local-removed-node
+# `pod install` keeps an `ios/.xcode.env.local` whose node is gone, so the iOS build fails after a node upgrade
 
-![Build](https://github.com/YevheniiKotyrlo/rn-ios-xcode-env-local-removed-node/workflows/Pre%20Merge%20Checks/badge.svg)
+The app is the template, unchanged: any React Native app reproduces it.
 
-This is your new React Native Reproducer project.
+macOS with nvm, React Native 0.88.0, Xcode 27.1, CocoaPods 1.17.0:
 
-# Reproducer TODO list
+```sh
+nvm install 24.18 && nvm use 24.18
+cd ReproducerApp && yarn install
+cd ios && pod install && cat .xcode.env.local
+# export NODE_BINARY=/Users/<you>/.nvm/versions/node/v24.18.1/bin/node
 
-- [x] 1. Create a new reproducer project.
-- [ ] 2. Git clone your repository locally.
-- [ ] 3. Edit the project to reproduce the failure you're seeing.
-- [ ] 4. Push your changes, so that Github Actions can run the CI.
-- [ ] 5. Make sure the repository is public and share the link with the issue you reported.
+nvm use default && nvm uninstall 24.18.1
+pod install && cat .xcode.env.local
+# unchanged: export NODE_BINARY=/Users/<you>/.nvm/versions/node/v24.18.1/bin/node
 
-# How to use this Reproducer
-
-This project has been created with `npx @react-native-community/cli init` and is a vanilla React Native app.
-
-> [!IMPORTANT]  
-> Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/set-up-your-environment) so that you have a working environment locally.
-
-## Step 1: Start the Metro Server
-
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
+cd .. && xcodebuild -workspace ios/ReproducerApp.xcworkspace -scheme ReproducerApp -configuration Release \
+  -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
-## Step 2: Start your Application
+Expected: the build uses the node that runs it. Seen, in the `[CP-User] [Hermes] Replace Hermes for the right
+configuration, if needed` and `[CP-User] [RNDeps] Replace React Native Dependencies for the right configuration, if
+needed` script phases:
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
 ```
-
-### For iOS
-
-First, make sure you install dependencies with:
-
-```bash
-cd ios && bundle install && bundle exec pod install
+Script-46EB2E00011B30.sh: line 9: /Users/<you>/.nvm/versions/node/v24.18.1/bin/node: No such file or directory
+Command PhaseScriptExecution failed with a nonzero exit code
+** BUILD FAILED **
 ```
-
-Then you can run the iOS app with:
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
